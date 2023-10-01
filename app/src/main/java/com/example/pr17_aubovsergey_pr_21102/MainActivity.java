@@ -1,6 +1,8 @@
 package com.example.pr17_aubovsergey_pr_21102;
 
 import static androidx.core.content.ContextCompat.getSystemService;
+import static androidx.core.content.PackageManagerCompat.LOG_TAG;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -19,8 +21,11 @@ import android.widget.EditText;
 public class MainActivity extends AppCompatActivity {
 
     DBHelper dbHelper;
-    EditText etAnimal, etName, etSize, etHeight;
-    Button btnInsert, btnRead, btnClear;
+    EditText etAnimal, etName, etSize, etHeight, etID;
+    Button btnInsert, btnRead, btnClear, btnDelete, btnUpdate;
+
+    String animal, name, id;
+    double size, height;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,13 +33,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         dbHelper = new DBHelper(this);
+
         etAnimal = findViewById(R.id.etAnimal);
         etName = findViewById(R.id.etName);
         etSize = findViewById(R.id.etSize);
         etHeight = findViewById(R.id.etHeight);
+        etID = findViewById(R.id.etID);
+
         btnInsert = findViewById(R.id.btnInsert);
         btnClear = findViewById(R.id.btnClear);
         btnRead = findViewById(R.id.btnRead);
+        btnDelete = findViewById(R.id.btnDelete);
+        btnUpdate = findViewById(R.id.btnUpdate);
 
         btnInsert.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,6 +66,20 @@ public class MainActivity extends AppCompatActivity {
                 clearData();
             }
         });
+
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                updateData();
+            }
+        });
+
+        btnDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteData();
+            }
+        });
     }
 
     public void insertData() {
@@ -63,9 +87,9 @@ public class MainActivity extends AppCompatActivity {
         ContentValues cv = new ContentValues();
 
         // получаем данные из полей ввода
-        String animal = etAnimal.getText().toString();
-        String name = etName.getText().toString();
-        double size, height;
+        animal = etAnimal.getText().toString();
+        name = etName.getText().toString();
+
         try {
             size = Double.parseDouble(etSize.getText().toString());
             height = Double.parseDouble(etHeight.getText().toString());
@@ -125,6 +149,51 @@ public class MainActivity extends AppCompatActivity {
         // удаляем все записи
         int clearCount = db.delete("mytable", null, null);
         Log.d("LOG_TAG", "deleted rows count = " + clearCount);
+    }
+
+    @SuppressLint("RestrictedApi")
+    public void updateData() {
+
+        ContentValues cv = new ContentValues();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        id = etID.getText().toString();
+
+        if (id.equalsIgnoreCase("")) {
+        }
+
+        Log.d(LOG_TAG, "--- Update mytable: ---");
+        // подготовим значения для обновления
+        cv.put("animal", animal);
+        cv.put("name", name);
+        cv.put("size", size);
+        cv.put("height", height);
+        // обновляемпо id
+        int updCount = db.update("mytable", cv, "id = ?",
+                new String[] { id });
+        Log.d(LOG_TAG, "updated rows count = "+ updCount);
+
+
+    }
+
+    @SuppressLint("RestrictedApi")
+    public void deleteData(){
+
+        ContentValues cv = new ContentValues();
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        id = etID.getText().toString();
+
+        if(id.equalsIgnoreCase("")) {
+
+        }
+
+        Log.d(LOG_TAG, "--- Delete from mytable: ---");
+        // удаляемпо id
+        int delCount = db.delete("mytable", "id = "+ id, null);
+        Log.d(LOG_TAG, "deleted rows count = "+ delCount);
+
+
     }
 
     @Override
