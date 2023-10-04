@@ -163,6 +163,17 @@ public class MainActivity extends AppCompatActivity {
         }
 
         Log.d(LOG_TAG, "--- Update mytable: ---");
+
+        animal = etAnimal.getText().toString();
+        name = etName.getText().toString();
+
+        try {
+            size = Double.parseDouble(etSize.getText().toString());
+            height = Double.parseDouble(etHeight.getText().toString());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         // подготовим значения для обновления
         cv.put("animal", animal);
         cv.put("name", name);
