@@ -16,16 +16,20 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 
 
 public class MainActivity extends AppCompatActivity {
 
     DBHelper dbHelper;
     EditText etAnimal, etName, etSize, etHeight, etID;
-    Button btnInsert, btnRead, btnClear, btnDelete, btnUpdate;
+    Button btnInsert, btnRead, btnClear, btnDelete, btnUpdate, btnSort;
+    RadioGroup rgSort;
 
-    String animal, name, id;
+    String animal, name, id, orderBy;
     double size, height;
+    Cursor c = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,41 +49,17 @@ public class MainActivity extends AppCompatActivity {
         btnRead = findViewById(R.id.btnRead);
         btnDelete = findViewById(R.id.btnDelete);
         btnUpdate = findViewById(R.id.btnUpdate);
+        btnSort = findViewById(R.id.btnSort);
 
-        btnInsert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                insertData();
-            }
-        });
+        rgSort = findViewById(R.id.rgSort);
 
-        btnRead.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                readData();
-            }
-        });
+        btnInsert.setOnClickListener(v -> {insertData();});
+        btnRead.setOnClickListener(v -> {readData();});
+        btnDelete.setOnClickListener(v -> {deleteData();});
+        btnClear.setOnClickListener(v -> {clearData();});
+        btnUpdate.setOnClickListener(v -> {updateData();});
+        btnSort.setOnClickListener(v -> {sortData();});
 
-        btnClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clearData();
-            }
-        });
-
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateData();
-            }
-        });
-
-        btnDelete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteData();
-            }
-        });
     }
 
     public void insertData() {
@@ -184,13 +164,12 @@ public class MainActivity extends AppCompatActivity {
                 new String[] { id });
         Log.d(LOG_TAG, "updated rows count = "+ updCount);
 
-
+        c.close();
     }
 
     @SuppressLint("RestrictedApi")
     public void deleteData(){
 
-        ContentValues cv = new ContentValues();
         SQLiteDatabase db = dbHelper.getWritableDatabase();
 
         id = etID.getText().toString();
@@ -204,6 +183,48 @@ public class MainActivity extends AppCompatActivity {
         int delCount = db.delete("mytable", "id = "+ id, null);
         Log.d(LOG_TAG, "deleted rows count = "+ delCount);
 
+
+    }
+
+    @SuppressLint("RestrictedApi")
+    public void sortData(){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        if(rgSort.getCheckedRadioButtonId() == R.id.rbAnimal){
+            Log.d(LOG_TAG, "--- Сортировка по названию животного ---");
+            orderBy = "animal";
+        }
+        if(rgSort.getCheckedRadioButtonId() == R.id.rbName){
+            Log.d(LOG_TAG, "--- Сортировка по имени животного ---");
+            orderBy = "name";
+        }
+        if(rgSort.getCheckedRadioButtonId() == R.id.rbSize){
+            Log.d(LOG_TAG, "--- Сортировка по весу животного ---");
+            orderBy = "size";
+        }
+        if(rgSort.getCheckedRadioButtonId() == R.id.rbHeight){
+            Log.d(LOG_TAG, "--- Сортировка по росту животного ---");
+            orderBy = "height";
+        }
+
+        c = db.query("mytable", null, null, null, null, null, orderBy);
+
+        if (c != null) {
+            if (c.moveToFirst()) {
+                String str;
+                do {
+                    str = "";
+                    for (String cn :c.getColumnNames()) {
+                        str = str.concat(cn + " = "
+                                + c.getString(c.getColumnIndexOrThrow(cn)) + "; ");
+                    }
+                    Log.d(LOG_TAG, str);
+
+                } while (c.moveToNext());
+            }
+            c.close();
+        } else
+            Log.d(LOG_TAG, "Cursor is null");
 
     }
 
