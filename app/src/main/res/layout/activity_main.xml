@@ -208,7 +208,7 @@
             android:id="@+id/rbAnimal"
             android:layout_width="match_parent"
             android:layout_height="40dp"
-            android:text="Sor by animal"
+            android:text="Sort by animal"
             android:textColor="@color/white"/>
 
         <RadioButton
