@@ -139,32 +139,35 @@ public class MainActivity extends AppCompatActivity {
 
         id = etID.getText().toString();
 
-        if (id.equalsIgnoreCase("")) {
+        if (!id.equalsIgnoreCase("")) {
+            Log.d(LOG_TAG, "--- Update mytable: ---");
+
+            animal = etAnimal.getText().toString();
+            name = etName.getText().toString();
+
+            try {
+                size = Double.parseDouble(etSize.getText().toString());
+                height = Double.parseDouble(etHeight.getText().toString());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            // подготовим значения для обновления
+            cv.put("animal", animal);
+            cv.put("name", name);
+            cv.put("size", size);
+            cv.put("height", height);
+            // обновляемпо id
+            int updCount = db.update("mytable", cv, "id = ?",
+                    new String[] { id });
+            Log.d(LOG_TAG, "updated rows count = "+ updCount);
+
+            c.close();
+        }
+        else{
+            Log.d(LOG_TAG, "--- Cant update: ---");
         }
 
-        Log.d(LOG_TAG, "--- Update mytable: ---");
-
-        animal = etAnimal.getText().toString();
-        name = etName.getText().toString();
-
-        try {
-            size = Double.parseDouble(etSize.getText().toString());
-            height = Double.parseDouble(etHeight.getText().toString());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        // подготовим значения для обновления
-        cv.put("animal", animal);
-        cv.put("name", name);
-        cv.put("size", size);
-        cv.put("height", height);
-        // обновляемпо id
-        int updCount = db.update("mytable", cv, "id = ?",
-                new String[] { id });
-        Log.d(LOG_TAG, "updated rows count = "+ updCount);
-
-        c.close();
     }
 
     @SuppressLint("RestrictedApi")
@@ -174,15 +177,12 @@ public class MainActivity extends AppCompatActivity {
 
         id = etID.getText().toString();
 
-        if(id.equalsIgnoreCase("")) {
-
+        if(!id.equalsIgnoreCase("")) {
+            Log.d(LOG_TAG, "--- Delete from mytable: ---");
+            // удаляемпо id
+            int delCount = db.delete("mytable", "id = "+ id, null);
+            Log.d(LOG_TAG, "deleted rows count = "+ delCount);
         }
-
-        Log.d(LOG_TAG, "--- Delete from mytable: ---");
-        // удаляемпо id
-        int delCount = db.delete("mytable", "id = "+ id, null);
-        Log.d(LOG_TAG, "deleted rows count = "+ delCount);
-
 
     }
 
